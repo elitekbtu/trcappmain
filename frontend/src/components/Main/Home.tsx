@@ -7,6 +7,7 @@ import { Card, CardContent } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { TrendingUp, Heart, ShoppingBag, Sparkles } from 'lucide-react'
+import { CATEGORY_LABELS } from '../../constants'
 
 interface Item {
   id: number
@@ -160,8 +161,8 @@ const Home = () => {
                     <CardContent className="p-4">
                       <div className="mb-2">
                         {item.category && (
-                          <Badge variant="outline" className="mb-2 text-xs">
-                            {item.category}
+                          <Badge variant="outline" className="mb-2 text-xs capitalize">
+                            {CATEGORY_LABELS[item.category] ?? item.category}
                           </Badge>
                         )}
                         <h3 className="font-medium leading-tight" title={item.name}>

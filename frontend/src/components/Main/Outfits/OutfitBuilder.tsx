@@ -5,13 +5,33 @@ import { type ItemOut } from '../../../api/schemas'
 import { Button } from '../../ui/button'
 import { useTranslation } from 'react-i18next'
 
-// Mapping for UI labels and API clothing types
+// Mapping for UI labels and the list of API categories grouped under each logical part of outfit
 export const categoryConfig = [
-  { key: 'tops', apiType: 'top', label: 'Верх' },
-  { key: 'accessories', apiType: 'accessories', label: 'Аксессуары' },
-  { key: 'bottoms', apiType: 'bottom', label: 'Низ' },
-  { key: 'footwear', apiType: 'footwear', label: 'Обувь' },
-  { key: 'fragrances', apiType: 'fragrances', label: 'Ароматы' },
+  {
+    key: 'tops',
+    apiTypes: ['tshirt', 'shirt', 'hoodie', 'sweater', 'jacket', 'coat', 'dress'],
+    label: 'Верх',
+  },
+  {
+    key: 'accessories',
+    apiTypes: ['accessories'],
+    label: 'Аксессуары',
+  },
+  {
+    key: 'bottoms',
+    apiTypes: ['pants', 'jeans', 'shorts', 'skirt'],
+    label: 'Низ',
+  },
+  {
+    key: 'footwear',
+    apiTypes: ['footwear'],
+    label: 'Обувь',
+  },
+  {
+    key: 'fragrances',
+    apiTypes: ['fragrances'],
+    label: 'Ароматы',
+  },
 ] as const
 
 type CategoryKey = (typeof categoryConfig)[number]['key']
@@ -30,18 +50,22 @@ const OutfitBuilder = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const promises = categoryConfig.map((c) =>
-          listItems({ category: c.apiType, limit: 50 })
-        )
-        const results = await Promise.all(promises)
         const grouped: Record<string, ItemOut[]> = {}
         const idx: IndexState = {}
         const sel: Record<string, ItemOut[]> = {}
-        categoryConfig.forEach((c, i) => {
-          grouped[c.key] = results[i]
-          idx[c.key] = 0
-          sel[c.key] = []
-        })
+
+        // Fetch items for each logical category (tops, bottoms, etc.)
+        await Promise.all(
+          categoryConfig.map(async (c) => {
+            const lists = await Promise.all(
+              c.apiTypes.map((t) => listItems({ category: t, limit: 50 }))
+            )
+            const combined = lists.flat()
+            grouped[c.key] = combined
+            idx[c.key] = 0
+            sel[c.key] = []
+          }),
+        )
         setItemsByCat(grouped)
         setIndexByCat(idx)
         setSelectedByCat(sel)

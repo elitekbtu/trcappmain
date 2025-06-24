@@ -14,8 +14,20 @@ from .schemas import OutfitCreate, OutfitUpdate, OutfitOut, OutfitCommentCreate,
 
 CATEGORY_MAP = {
     # payload_field: (set_of_acceptable_item_categories, item_category_for_outfit_item)
-    "top_ids": ({"top", "tops", "Top", "Tops"}, "top"),
-    "bottom_ids": ({"bottom", "bottoms", "Bottom", "Bottoms"}, "bottom"),
+    "top_ids": (
+        {
+            "top", "tops", "Top", "Tops",
+            "tshirt", "shirt", "hoodie", "sweater", "jacket", "coat", "dress"
+        },
+        "top",
+    ),
+    "bottom_ids": (
+        {
+            "bottom", "bottoms", "Bottom", "Bottoms",
+            "pants", "jeans", "shorts", "skirt"
+        },
+        "bottom",
+    ),
     "footwear_ids": ({"footwear", "Footwear"}, "footwear"),
     "accessories_ids": ({"accessories", "Accessories", "accessory"}, "accessory"),
     "fragrances_ids": ({"fragrances", "Fragrances", "fragrance"}, "fragrance"),

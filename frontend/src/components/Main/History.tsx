@@ -7,6 +7,7 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { ShoppingBag, Clock } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { CATEGORY_LABELS } from '../../constants'
 
 interface Item {
   id: number
@@ -123,8 +124,8 @@ const History = () => {
                     <CardContent className="p-4">
                       <div className="mb-2">
                         {item.category && (
-                          <Badge variant="outline" className="mb-2 text-xs">
-                            {item.category}
+                          <Badge variant="outline" className="mb-2 text-xs capitalize">
+                            {CATEGORY_LABELS[item.category] ?? item.category}
                           </Badge>
                         )}
                         <h3 className="font-medium leading-tight" title={item.name}>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ShoppingBag, User, LogOut, Settings, Heart, ShoppingCart, Clock } from 'lucide-react'
+import { ShoppingBag, User, LogOut, Settings, Heart, ShoppingCart, Clock, Menu, Home, LayoutGrid, Sparkles, Shield } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
@@ -26,6 +26,7 @@ const MainNavbar = () => {
           TRC
         </Link>
         
+        {/* Desktop nav */}
         <nav className="hidden gap-8 md:flex">
           <Link to="/home" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Главная
@@ -44,13 +45,68 @@ const MainNavbar = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link to="/favorites">
+          {/* Mobile nav trigger */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent sideOffset={4} align="start" className="w-56 p-1 md:hidden">
+              <DropdownMenuItem asChild>
+                <Link to="/home" className="flex items-center gap-2">
+                  <Home className="h-4 w-4" /> Главная
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/items" className="flex items-center gap-2">
+                  <LayoutGrid className="h-4 w-4" /> Каталог
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/outfits" className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" /> Образы
+                </Link>
+              </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/users" className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" /> Админ
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="flex items-center gap-2">
+                  <User className="h-4 w-4" /> Профиль
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/favorites" className="flex items-center gap-2">
+                  <Heart className="h-4 w-4" /> Избранное
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/cart" className="flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4" /> Корзина
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/logout" className="flex items-center gap-2 text-destructive">
+                  <LogOut className="h-4 w-4" /> Выйти
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Favorites, cart, avatar for desktop only */}
+          <Link to="/favorites" className="hidden md:block">
             <Button variant="ghost" size="icon" className="relative">
               <Heart className={`h-5 w-5 ${favoriteIds.length > 0 ? 'fill-primary text-primary' : ''}`} />
             </Button>
           </Link>
           
-          <Link to="/cart">
+          <Link to="/cart" className="hidden md:block">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
@@ -62,9 +118,9 @@ const MainNavbar = () => {
           </Link>
           
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
+            <DropdownMenuTrigger asChild className="hidden md:block">
+              <Button variant="ghost" size="icon" className="rounded-full p-0 h-8 w-8 focus-visible:ring-0 focus-visible:ring-offset-0">
+                <Avatar className="h-full w-full">
                   <AvatarImage src={user?.avatar || undefined} alt={user?.first_name || user?.email} />
                   <AvatarFallback>
                     {user?.first_name?.[0] || user?.email?.[0] || 'U'}

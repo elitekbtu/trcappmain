@@ -56,16 +56,21 @@ const CreateOutfit = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const promises = categoryConfig.map((c) => listItems({ category: c.apiType, limit: 50 }))
-        const results = await Promise.all(promises)
         const grouped: Record<string, ItemOut[]> = {}
         const idx: IndexState = {}
         const sel: Record<string, ItemOut[]> = {}
-        categoryConfig.forEach((c, i) => {
-          grouped[c.key] = results[i]
-          idx[c.key] = 0
-          sel[c.key] = []
-        })
+
+        await Promise.all(
+          categoryConfig.map(async (c) => {
+            const lists = await Promise.all(
+              c.apiTypes.map((t) => listItems({ category: t, limit: 50 }))
+            )
+            const combined = lists.flat()
+            grouped[c.key] = combined
+            idx[c.key] = 0
+            sel[c.key] = []
+          }),
+        )
         setItemsByCat(grouped)
         setIndexByCat(idx)
         setSelectedByCat(sel)

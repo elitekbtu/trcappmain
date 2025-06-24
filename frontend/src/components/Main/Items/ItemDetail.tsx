@@ -15,6 +15,7 @@ import { Textarea } from '../../ui/textarea'
 import { useCart } from '../../../context/CartContext'
 import { useFavorites } from '../../../context/FavoritesContext'
 import ImageCarousel from '../../common/ImageCarousel'
+import { CATEGORY_LABELS } from '../../../constants'
 
 interface Item {
   id: number
@@ -143,6 +144,19 @@ const ItemDetail = () => {
     visible: { opacity: 1, y: 0 }
   }
 
+  const minVariantPrice = item.variants && item.variants.length > 0
+    ? Math.min(...item.variants.map((v) => (typeof v.price === 'number' ? v.price! : Infinity)))
+    : undefined
+
+  let displayedPrice: number | undefined
+  if (selectedVariant?.price !== undefined && selectedVariant?.price !== null) {
+    displayedPrice = selectedVariant.price
+  } else if (minVariantPrice !== undefined && minVariantPrice !== Infinity) {
+    displayedPrice = minVariantPrice
+  } else if (item.price !== undefined && item.price !== null) {
+    displayedPrice = item.price
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -200,8 +214,8 @@ const ItemDetail = () => {
         >
           <div className="mb-4 flex items-center justify-between">
             {item.category && (
-              <Badge variant="outline" className="text-xs">
-                {item.category}
+              <Badge variant="outline" className="text-xs capitalize">
+                {CATEGORY_LABELS[item.category] ?? item.category}
               </Badge>
             )}
           </div>
@@ -212,8 +226,8 @@ const ItemDetail = () => {
             <p className="mb-4 text-lg text-muted-foreground">{item.brand}</p>
           )}
 
-          {item.price !== null && item.price !== undefined && (
-            <p className="mb-6 text-2xl font-bold">{item.price.toLocaleString()}₸</p>
+          {displayedPrice !== undefined && (
+            <p className="mb-6 text-2xl font-bold">{displayedPrice.toLocaleString()}₸</p>
           )}
 
           <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
@@ -256,9 +270,10 @@ const ItemDetail = () => {
                   const isSelected = selectedVariant?.id === v.id
                   return (
                     <Button
+                      className="transition-colors"
                       key={v.id}
                       type="button"
-                      variant={isSelected ? 'default' : 'outline'}
+                      variant={isSelected ? 'secondary' : 'outline'}
                       size="sm"
                       onClick={() => {
                         setSelectedVariant(v)
@@ -371,6 +386,11 @@ const ItemDetail = () => {
                     </div>
                     <CardContent className="p-4">
                       <div className="mb-2">
+                        {it.category && (
+                          <Badge variant="outline" className="mb-2 text-xs capitalize">
+                            {CATEGORY_LABELS[it.category] ?? it.category}
+                          </Badge>
+                        )}
                         <h3 className="font-medium leading-tight" title={it.name}>
                           {it.name}
                         </h3>
@@ -378,9 +398,17 @@ const ItemDetail = () => {
                           <p className="text-sm text-muted-foreground">{it.brand}</p>
                         )}
                       </div>
-                      {it.price !== null && it.price !== undefined && (
-                        <p className="font-semibold">{it.price.toLocaleString()} ₸</p>
-                      )}
+                      {(() => {
+                        let price: number | undefined = undefined
+                        if ((it as any).variants && (it as any).variants.length > 0) {
+                          const prices = (it as any).variants.map((v: any) => v.price).filter((p: any) => typeof p === 'number') as number[]
+                          if (prices.length > 0) price = Math.min(...prices)
+                        }
+                        if (price === undefined) price = it.price ?? undefined
+                        return price !== undefined ? (
+                          <p className="font-semibold">{price.toLocaleString()} ₸</p>
+                        ) : null
+                      })()}
                     </CardContent>
                   </Link>
                 </Card>

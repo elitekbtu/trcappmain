@@ -9,6 +9,7 @@ import { Badge } from '../../ui/badge'
 import { Search, Filter, Heart, ShoppingBag } from 'lucide-react'
 import { useFavorites } from '../../../context/FavoritesContext'
 import ImageCarousel from '../../common/ImageCarousel'
+import { CATEGORY_LABELS } from '../../../constants'
 
 interface Item {
   id: number
@@ -60,6 +61,14 @@ const ItemsList = () => {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
+  }
+
+  const getDisplayPrice = (item: Item): number | undefined => {
+    if ((item as any).variants && (item as any).variants.length > 0) {
+      const prices = (item as any).variants.map((v: any) => v.price).filter((p: any) => typeof p === 'number') as number[]
+      if (prices.length > 0) return Math.min(...prices)
+    }
+    return item.price ?? undefined
   }
 
   return (
@@ -168,8 +177,8 @@ const ItemsList = () => {
                   <CardContent className="p-4">
                     <div className="mb-2">
                       {item.category && (
-                        <Badge variant="outline" className="mb-2 text-xs">
-                          {item.category}
+                        <Badge variant="outline" className="mb-2 text-xs capitalize">
+                          {CATEGORY_LABELS[item.category] ?? item.category}
                         </Badge>
                       )}
                       <h3 className="font-medium leading-tight" title={item.name}>
@@ -179,9 +188,12 @@ const ItemsList = () => {
                         <p className="text-sm text-muted-foreground">{item.brand}</p>
                       )}
                     </div>
-                    {item.price !== null && item.price !== undefined && (
-                      <p className="font-semibold">{item.price.toLocaleString()} ₸</p>
-                    )}
+                    {(() => {
+                      const price = getDisplayPrice(item)
+                      return price !== undefined ? (
+                        <p className="font-semibold">{price.toLocaleString()} ₸</p>
+                      ) : null
+                    })()}
                   </CardContent>
                 </Link>
               </Card>
