@@ -224,57 +224,74 @@ const ItemDetail = () => {
             <p className="mb-6 text-2xl font-bold">{displayedPrice.toLocaleString()}₸</p>
           )}
 
-          <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-            {item.color && (
-              <div>
-                <p className="text-muted-foreground">Цвет</p>
-                <p className="font-medium">{item.color}</p>
-              </div>
-            )}
-            {item.size && (
-              <div>
-                <p className="text-muted-foreground">Размер</p>
-                <p className="font-medium">{item.size}</p>
-              </div>
-            )}
-            {item.style && (
-              <div>
-                <p className="text-muted-foreground">Стиль</p>
-                <p className="font-medium">{item.style}</p>
-              </div>
-            )}
-            {item.collection && (
-              <div>
-                <p className="text-muted-foreground">Коллекция</p>
-                <p className="font-medium">{item.collection}</p>
-              </div>
-            )}
-          </div>
+          { (item.color || item.size || item.style || item.collection) && (
+            <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {item.color && (
+                <div className="rounded-md bg-muted/80 p-2.5 border border-border/50 w-full sm:max-w-[260px]">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Цвет</p>
+                  <p className="text-sm font-medium leading-tight">{item.color}</p>
+                </div>
+              )}
+              {item.size && (
+                <div className="rounded-md bg-muted/80 p-2.5 border border-border/50 w-full sm:max-w-[260px]">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Размер</p>
+                  <p className="text-sm font-medium leading-tight">{item.size}</p>
+                </div>
+              )}
+              {item.style && (
+                <div className="rounded-md bg-muted/80 p-2.5 border border-border/50 w-full sm:max-w-[260px]">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Стиль</p>
+                  <p className="text-sm font-medium leading-tight">{item.style}</p>
+                </div>
+              )}
+              {item.collection && (
+                <div className="rounded-md bg-muted/80 p-2.5 border border-border/50 w-full sm:max-w-[260px]">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Коллекция</p>
+                  <p className="text-sm font-medium leading-tight">{item.collection}</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Variants Section */}
           {item.variants && item.variants.length > 0 && (
             <div className="mb-6 space-y-4">
               <h3 className="font-medium">Выберите вариант</h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {item.variants.map((v) => {
-                  const parts = [] as string[]
+                  const parts: string[] = []
                   if (v.size) parts.push(v.size)
                   if (v.color) parts.push(v.color)
                   const label = parts.join(' ') || v.sku || String(v.id)
                   const isSelected = selectedVariant?.id === v.id
+                  const isOut = v.stock !== undefined && v.stock === 0
+
                   return (
                     <Button
                       key={v.id}
                       type="button"
-                      variant={isSelected ? 'secondary' : 'outline'}
-                      size="sm"
-                      className="rounded-lg transition-all"
+                      variant={isSelected ? 'default' : 'outline'}
+                      size="default"
+                      disabled={isOut}
+                      className={`flex flex-col items-start justify-between gap-1 rounded-xl border-2 px-3 py-3 transition-all duration-200 min-h-[84px] ${
+                        isSelected ? 'border-primary shadow-sm' : 'border-transparent hover:border-muted-foreground/40'
+                      } ${isOut ? 'opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() => {
                         setSelectedVariant(v)
                         setQty(1)
                       }}
                     >
-                      {label}
+                      <span className="font-medium leading-tight">{label}</span>
+                      {v.price !== undefined && v.price !== null && (
+                        <span className="text-sm text-muted-foreground">
+                          {v.price.toLocaleString()}₸
+                        </span>
+                      )}
+                      {v.stock !== undefined && (
+                        <span className="text-xs text-muted-foreground">
+                          {v.stock > 0 ? `${v.stock} шт.` : 'Нет в наличии'}
+                        </span>
+                      )}
                     </Button>
                   )
                 })}
