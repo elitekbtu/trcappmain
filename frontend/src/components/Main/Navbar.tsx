@@ -81,6 +81,16 @@ const MainNavbar = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
+                <Link to="/settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" /> Настройки
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/history" className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" /> История
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link to="/favorites" className="flex items-center gap-2">
                   <Heart className="h-4 w-4" /> Избранное
                 </Link>
