@@ -7,7 +7,7 @@ import { Input } from '../ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import GoogleLoginButton from './GoogleLoginButton'
 import { Alert, AlertDescription } from '../ui/alert'
-import { InfoCircledIcon } from '@radix-ui/react-icons' // Изменили иконку
+import { InfoCircledIcon } from '@radix-ui/react-icons' 
 
 const Login = () => {
   const [email, setEmail] = useState('')
