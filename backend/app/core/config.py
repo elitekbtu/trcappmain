@@ -7,7 +7,7 @@ from pydantic import BaseSettings, Field, validator
 class Settings(BaseSettings):
 
     PROJECT_NAME: str = "TRC Backend"
-    BACKEND_CORS_ORIGINS: List[str] = ["*"]
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:8000", "http://161.35.198.232:8000"]
 
     DATABASE_URL: str = Field("postgresql://postgres:postgres@db:5432/trcapp", env="DATABASE_URL")
     REDIS_URL: str = Field("redis://redis:6379/0", env="REDIS_URL")
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str = Field("", env="GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET: str = Field("", env="GOOGLE_CLIENT_SECRET")
-    GOOGLE_REDIRECT_URI: str = Field("http://localhost:8000/api/auth/google/callback", env="GOOGLE_REDIRECT_URI")
+    GOOGLE_REDIRECT_URI: str = Field("http://localhost:8000/api/auth/google/callback, http://161.35.198.232:8000/api/auth/google/callback", env="GOOGLE_REDIRECT_URI")
 
     class Config:
         env_file = ".env"
