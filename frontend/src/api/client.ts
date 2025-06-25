@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
-// Base URL from env or fallback to same-origin relative path so that requests are proxied via nginx
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+// Base URL from env or fallback to same-origin (empty string) so calls like '/api/…' stay single-prefixed
+const baseURL = import.meta.env.VITE_API_BASE_URL || ''
 
 // Access + refresh tokens are persisted in localStorage using these keys
 const ACCESS_KEY = 'access_token'
