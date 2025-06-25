@@ -6,10 +6,8 @@ import { useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 const Hero = () => {
-  // Анимация фона
   const bgControls = useAnimation()
-
-  // Партнеры
+  
   const partners = [
     { name: "MEGA", logo: "https://mega.kz/media/2021/10/1/1633104265.png" },
     { name: "Almaly", logo: "https://almaly.kz/upload/iblock/12f/up7f.jpg" },
@@ -24,7 +22,6 @@ const Hero = () => {
   })
 
   useEffect(() => {
-    // Фоновая анимация
     const bgAnimation = async () => {
       await bgControls.start({
         backgroundPosition: ["0% 0%", "100% 100%"],
@@ -37,13 +34,8 @@ const Hero = () => {
       })
     }
     bgAnimation()
+  }, [bgControls])
 
-    return () => {
-      // nothing to cleanup
-    }
-  }, [])
-
-  // Анимация партнеров
   const partnerAnimation = useAnimation()
   
   useEffect(() => {
@@ -56,12 +48,10 @@ const Hero = () => {
         }
       })
     }
-  }, [inView])
+  }, [inView, partnerAnimation])
 
   return (
     <div className="relative overflow-hidden">
-      {/* Убрали градиентный фон */}
-      
       {/* Анимированные элементы фона */}
       <motion.div
         className="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl"
@@ -92,7 +82,6 @@ const Hero = () => {
       />
 
       <div className="container mx-auto px-4 py-16 md:py-24 lg:py-32">
-        {/* Основной контент */}
         <div className="mx-auto max-w-4xl text-center">
           {/* Бейдж */}
           <motion.div
@@ -166,7 +155,7 @@ const Hero = () => {
             </Button>
           </motion.div>
 
-          {/* Карусель логотипов партнёров – сразу под основными CTA */}
+          {/* Карусель логотипов партнёров */}
           <div ref={ref} className="mt-10">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -179,24 +168,36 @@ const Hero = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={partnerAnimation}
-              className="overflow-hidden py-4"
+              className="relative overflow-hidden py-4"
             >
+              <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent z-10" />
+              <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent z-10" />
+              
               <motion.div
                 className="flex gap-8 md:gap-12 items-center"
-                animate={{ x: ['0%', '-100%'] }}
-                transition={{ duration: 16, ease: 'linear', repeat: Infinity }}
+                animate={{ 
+                  x: ['0%', `-${100 - 100 / partners.length}%`] 
+                }}
+                transition={{ 
+                  duration: 20, 
+                  ease: 'linear', 
+                  repeat: Infinity, 
+                  repeatType: 'loop' 
+                }}
               >
                 {[...partners, ...partners].map((partner, i) => (
-                  <div
-                    key={i}
+                  <motion.div
+                    key={`${partner.name}-${i}`}
                     className="flex-shrink-0 bg-background/80 backdrop-blur-sm px-4 md:px-6 py-2 md:py-3 rounded-lg border border-muted/20 hover:border-primary/30 transition-colors"
+                    whileHover={{ scale: 1.05 }}
                   >
                     <img
                       src={partner.logo}
                       alt={partner.name}
                       className="h-12 md:h-16 w-auto object-contain"
+                      loading="lazy"
                     />
-                  </div>
+                  </motion.div>
                 ))}
               </motion.div>
             </motion.div>
@@ -238,6 +239,7 @@ const Hero = () => {
                     src={category.image}
                     alt={category.name}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
