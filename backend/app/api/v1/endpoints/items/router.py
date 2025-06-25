@@ -72,6 +72,12 @@ def items_by_collection(name: str, db: Session = Depends(get_db)):
     return service.items_by_collection(db, name)
 
 
+@router.get("/collections/names", response_model=List[str])
+def list_collections(db: Session = Depends(get_db)):
+    """Return distinct collection names (non-null) from items."""
+    return service.list_collections(db)
+
+
 @router.get("/favorites", response_model=List[ItemOut])
 def list_favorite_items(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return service.list_favorite_items(db, user)

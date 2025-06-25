@@ -118,9 +118,13 @@ def create_outfit(db: Session, user: User, outfit_in: OutfitCreate):
             outfit_item = OutfitItem(item_category=item_cat, item=item)
             db_outfit.outfit_items.append(outfit_item)
 
+    # Validate that items belong to the specified collection only when:
+    #   1. Клиент действительно указал коллекцию И
+    #   2. У товара тоже явно указана коллекция, отличная от переданной
+    # Это позволяет использовать универсальные вещи без коллекции в любом образе.
     if outfit_in.collection:
         for item in all_items_for_collection_check:
-            if item.collection != outfit_in.collection:
+            if item.collection and item.collection != outfit_in.collection:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Item {item.id} does not belong to collection '{outfit_in.collection}'",
@@ -244,13 +248,16 @@ def update_outfit(db: Session, user: User, outfit_id: int, outfit_in: OutfitUpda
                 for item in items:
                     outfit.outfit_items.append(OutfitItem(item_category=item_cat, item=item))
 
-    if (items_were_updated or "collection" in update_data) and outfit.collection:
-        all_items_in_outfit = [oi.item for oi in outfit.outfit_items]
-        for item in all_items_in_outfit:
-            if item.collection != outfit.collection:
+    # Validate that items belong to the specified collection only when:
+    #   1. Клиент действительно указал коллекцию И
+    #   2. У товара тоже явно указана коллекция, отличная от переданной
+    # Это позволяет использовать универсальные вещи без коллекции в любом образе.
+    if outfit_in.collection:
+        for item in outfit.outfit_items:
+            if item.item.collection and item.item.collection != outfit_in.collection:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Item {item.id} does not belong to collection '{outfit.collection}'",
+                    detail=f"Item {item.item.id} does not belong to collection '{outfit_in.collection}'",
                 )
 
     db.add(outfit)

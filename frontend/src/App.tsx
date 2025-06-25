@@ -32,6 +32,7 @@ import Cart from './components/Main/Cart'
 import History from './components/Main/History'
 import OutfitBuilder from './components/Main/Outfits/OutfitBuilder'
 import CreateOutfit from './components/Main/Outfits/CreateOutfit'
+import EditOutfit from './components/Main/Outfits/EditOutfit'
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
               <Route path="/outfits/new" element={<CreateOutfit />} />
               <Route path="/outfits/builder" element={<OutfitBuilder />} />
               <Route path="/outfits/:id" element={<OutfitDetail />} />
+              <Route path="/outfits/:id/edit" element={<EditOutfit />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/history" element={<History />} />
               <Route path="/cart" element={<Cart />} />

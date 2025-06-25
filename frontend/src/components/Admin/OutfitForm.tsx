@@ -96,15 +96,16 @@ const OutfitForm = () => {
     setSubmitting(true)
 
     try {
+      const basePayload = { ...form, collection: form.collection?.trim() || undefined }
       if (isEdit) {
-        const payload: OutfitUpdate = { ...form }
+        const payload: OutfitUpdate = basePayload
         await updateOutfit(Number(id), payload)
         toast({
           title: 'Успешно',
           description: 'Образ успешно обновлен',
         })
       } else {
-        await createOutfit(form)
+        await createOutfit(basePayload as OutfitCreate)
         toast({
           title: 'Успешно',
           description: 'Образ успешно создан',

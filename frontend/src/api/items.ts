@@ -67,6 +67,13 @@ export const itemsByCollection = async (name: string) => {
   return resp.data
 }
 
+// ----- Collections names ----
+
+export const listCollections = async () => {
+  const resp = await api.get<string[]>('/api/items/collections/names')
+  return resp.data
+}
+
 // ---------- Favorites ----------
 
 export const toggleFavoriteItem = async (id: number) => {

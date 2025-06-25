@@ -243,7 +243,8 @@ def trending_items(db: Session, limit: int = 20):
 
 
 def items_by_collection(db: Session, name: str):
-    return db.query(Item).filter(Item.collection == name).all()
+    items = db.query(Item).filter(Item.collection == name).all()
+    return [ItemOut.from_orm(i) for i in items]
 
 
 def list_favorite_items(db: Session, user: User):
@@ -418,4 +419,18 @@ def delete_item_image(db: Session, item_id: int, image_id: int):
     db.delete(img)
     db.commit()
 
-    # Return nothing (204) 
+    # Return nothing (204)
+
+
+# ---------- Collections names ----------
+
+def list_collections(db: Session):
+    """Return distinct collection names present in items."""
+    names = (
+        db.query(Item.collection)
+        .filter(Item.collection.isnot(None))
+        .distinct()
+        .order_by(Item.collection)
+        .all()
+    )
+    return [n[0] for n in names] 
