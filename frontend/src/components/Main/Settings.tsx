@@ -30,7 +30,7 @@ const emptyProfile: ProfileUpdate = {
 const Settings = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { logout } = useAuth()
+  const { logout, updateUser } = useAuth()
 
   const [form, setForm] = useState<ProfileUpdate>(emptyProfile)
   const [loading, setLoading] = useState(true)
@@ -124,12 +124,18 @@ const Settings = () => {
     }
 
     // 4. URL аватара (опционально)
-    if (form.avatar && !/^https?:\/\//.test(form.avatar)) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Ссылка на аватар должна начинаться с http:// или https://' })
+    // Разрешаем как абсолютные (http/https), так и относительные (начинающиеся с "/") пути,
+    // поскольку бэкенд возвращает относительный URL "/uploads/..." после загрузки файла
+    if (form.avatar && !/^https?:\/\//.test(form.avatar) && !form.avatar.startsWith('/')) {
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка',
+        description: 'Ссылка на аватар должна быть абсолютной (http://, https://) или начинаться с /',
+      })
       return
     }
 
-    // Prepare payload without empty strings
+    // Prepare payload без пустых строк/значений
     const payload: ProfileUpdate = { ...form }
     Object.keys(payload).forEach((key) => {
       const k = key as keyof ProfileUpdate
@@ -139,9 +145,22 @@ const Settings = () => {
       }
     })
 
+    // Если изменений нет, просто показываем анимацию сохранения
+    if (Object.keys(payload).length === 0) {
+      setSubmitting(true)
+      // Небольшая задержка, чтобы спиннер успел отобразиться
+      setTimeout(() => {
+        toast({ title: 'Изменений не обнаружено' })
+        setSubmitting(false)
+      }, 600)
+      return
+    }
+
     setSubmitting(true)
     try {
-      await updateProfile(payload)
+      const updated = await updateProfile(payload)
+      updateUser(updated)
+      toast({ title: 'Профиль обновлен' })
       navigate('/profile')
     } catch (error: any) {
       const msg = error?.response?.data?.detail || 'Не удалось обновить профиль'
@@ -180,6 +199,7 @@ const Settings = () => {
     try {
       const updated = await uploadAvatar(file)
       setForm((prev) => ({ ...prev, avatar: updated.avatar }))
+      updateUser(updated)
       toast({ title: 'Аватар обновлен' })
     } catch (err) {
       toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось загрузить аватар' })
@@ -195,6 +215,13 @@ const Settings = () => {
     try {
       await deleteAvatar()
       setForm((prev) => ({ ...prev, avatar: '' }))
+      // Получаем актуальный профиль и обновляем контекст
+      try {
+        const fresh = await getProfile()
+        updateUser(fresh)
+      } catch {
+        // ignore
+      }
     } catch (err) {
       toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось удалить аватар' })
     } finally {

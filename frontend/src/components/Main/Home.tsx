@@ -78,42 +78,40 @@ const Home = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mb-12"
       >
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="group cursor-pointer transition-all hover:shadow-lg">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-primary/10 p-3">
-                <ShoppingBag className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Каталог</h3>
-                <p className="text-sm text-muted-foreground">Просмотреть все товары</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="group cursor-pointer transition-all hover:shadow-lg">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Sparkles className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Образы</h3>
-                <p className="text-sm text-muted-foreground">Создать новый образ</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="group cursor-pointer transition-all hover:shadow-lg">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Heart className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Избранное</h3>
-                <p className="text-sm text-muted-foreground">Ваши любимые вещи</p>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-3">
+          {[
+            {
+              to: '/items',
+              icon: <ShoppingBag className="h-6 w-6 text-primary" />,
+              label: 'Каталог',
+              sub: 'Все товары',
+            },
+            {
+              to: '/outfits/new',
+              icon: <Sparkles className="h-6 w-6 text-primary" />,
+              label: 'Создать образ',
+              sub: 'Новый лук',
+            },
+            {
+              to: '/favorites',
+              icon: <Heart className="h-6 w-6 text-primary" />,
+              label: 'Избранное',
+              sub: 'Любимые',
+            },
+          ].map((q) => (
+            <Link key={q.to} to={q.to} className="group">
+              <button
+                type="button"
+                className="w-full h-28 sm:h-32 flex flex-col items-center justify-center gap-2 rounded-xl border border-border/60 bg-card transition-all hover:shadow-md active:scale-[.97]"
+              >
+                <div className="rounded-full bg-primary/10 p-3 group-hover:scale-110 transition-transform">
+                  {q.icon}
+                </div>
+                <span className="text-sm font-semibold leading-none">{q.label}</span>
+                <span className="text-xs text-muted-foreground">{q.sub}</span>
+              </button>
+            </Link>
+          ))}
         </div>
       </motion.section>
 
@@ -135,12 +133,12 @@ const Home = () => {
             </Button>
           </div>
           
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
             {trending.slice(0, 8).map((item, index) => (
               <motion.div key={item.id} variants={itemVariants}>
                 <Card className="group overflow-hidden transition-all hover:shadow-lg">
                   <Link to={`/items/${item.id}`}>
-                    <div className="relative aspect-[3/4] overflow-hidden">
+                    <div className="relative aspect-square md:aspect-[3/4] overflow-hidden">
                       {item.image_url ? (
                         <img
                           src={item.image_url}

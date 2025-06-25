@@ -25,7 +25,7 @@ const MainFooter = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="border-t bg-background/50 py-8 backdrop-blur-sm"
+      className="border-t bg-background/50 py-8 backdrop-blur-sm hidden md:block"
     >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
