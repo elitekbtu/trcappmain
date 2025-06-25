@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str = Field("", env="GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET: str = Field("", env="GOOGLE_CLIENT_SECRET")
-    GOOGLE_REDIRECT_URI: str = Field("http://161.35.198.232:8000/api/auth/google/callback", "http://localhost:8000/api/auth/google/callback", env="GOOGLE_REDIRECT_URI")
+    GOOGLE_REDIRECT_URI: str = Field("", env="GOOGLE_REDIRECT_URI")
 
     class Config:
         env_file = ".env"
