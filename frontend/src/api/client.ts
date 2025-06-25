@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
-// Base URL from env or default fallback (assumes backend exposed on port 8000 via docker compose)
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://161.35.198.232:8000'
+// Base URL from env or fallback to same-origin relative path so that requests are proxied via nginx
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 // Access + refresh tokens are persisted in localStorage using these keys
 const ACCESS_KEY = 'access_token'
