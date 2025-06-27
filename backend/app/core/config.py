@@ -36,3 +36,6 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Cached settings to avoid re-reading on each access."""
     return Settings()
+
+
+
