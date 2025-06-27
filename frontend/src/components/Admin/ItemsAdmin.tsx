@@ -75,7 +75,7 @@ const ItemsAdmin = () => {
       transition={{ duration: 0.3 }}
       className="container mx-auto px-4 py-8"
     >
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Управление вещами</h1>
         <Button asChild>
           <Link to="/admin/items/new" className="flex items-center gap-2">
@@ -85,8 +85,8 @@ const ItemsAdmin = () => {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
-        <table className="w-full text-left">
+      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
+        <table className="min-w-full text-left">
           <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
               <th className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">ID</th>

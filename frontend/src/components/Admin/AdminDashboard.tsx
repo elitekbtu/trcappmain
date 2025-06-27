@@ -64,14 +64,14 @@ const AdminDashboard = () => {
         {/* Navigation */}
         <motion.nav
           variants={itemVariants}
-          className="mb-8 flex gap-1 rounded-lg bg-background p-1 shadow-sm"
+          className="mb-8 flex flex-col gap-1 sm:flex-row sm:flex-wrap overflow-x-auto rounded-lg bg-background p-1 shadow-sm"
         >
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               className={cn(
-                'flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all',
+                'flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all w-full sm:w-auto',
                 currentPath.startsWith(item.path)
                   ? 'bg-primary text-primary-foreground shadow'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
