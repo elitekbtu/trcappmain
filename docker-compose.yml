@@ -50,6 +50,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/trcapp
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_CONCURRENCY=2
     depends_on:
       migrate:
         condition: service_completed_successfully
