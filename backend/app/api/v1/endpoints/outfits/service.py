@@ -43,7 +43,9 @@ def _fetch_items_by_category(db: Session, ids: List[int], acceptable_categories:
     if len(items) != len(ids):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="One or more items not found")
     for item in items:
-        if (item.category or "").lower() not in normalized:
+        # Allow items with an undefined/blank category. They are considered "universal" and can be
+        # used in any slot of the outfit. Only validate when the item actually has a category set.
+        if item.category and item.category.lower() not in normalized:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Item {item.id} is not in expected category",
