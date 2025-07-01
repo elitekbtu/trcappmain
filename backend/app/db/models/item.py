@@ -22,6 +22,13 @@ class Item(Base):
     style = Column(String(50), nullable=True, index=True)
     collection = Column(String(100), nullable=True, index=True)
     image_url = Column(String(255), nullable=True)
+    
+    # Поля для интеграции с внешними источниками (Lamoda, и др.)
+    source = Column(String(50), nullable=True, index=True)  # lamoda, manual, etc.
+    source_url = Column(String(500), nullable=True)  # URL товара на источнике
+    source_sku = Column(String(100), nullable=True, index=True)  # SKU на источнике
+    old_price = Column(Float, nullable=True)  # Старая цена (до скидки)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

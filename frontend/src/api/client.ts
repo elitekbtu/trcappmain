@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
-// Base URL from env or fallback to same-origin (empty string) so calls like '/api/…' stay single-prefixed
+// Base URL from env or fallback to same-origin (empty string) so calls like '/lamoda/…' work directly
 const baseURL = import.meta.env.VITE_API_BASE_URL || ''
 
 // Access + refresh tokens are persisted in localStorage using these keys

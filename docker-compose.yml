@@ -115,3 +115,4 @@ services:
 
 volumes:
   postgres_data:
+    name: trcapp_postgres_data

@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.security import require_admin, get_current_user_optional, get_current_user
 from app.db.models.user import User
 from . import service
-from .schemas import ItemOut, ItemUpdate, VariantOut, VariantCreate, VariantUpdate, CommentOut, CommentCreate, ItemImageOut
+from .schemas import ItemOut, ItemUpdate, VariantOut, VariantCreate, VariantUpdate, CommentOut, CommentCreate, ItemImageOut, LamodaImportRequest, LamodaImportResponse
 
 router = APIRouter(prefix="/items", tags=["Items"])
 
@@ -172,4 +172,42 @@ def list_item_images(item_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/{item_id}/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)])
 def delete_item_image(item_id: int, image_id: int, db: Session = Depends(get_db)):
-    return service.delete_item_image(db, item_id, image_id) 
+    return service.delete_item_image(db, item_id, image_id)
+
+
+# -------- Lamoda Import --------
+
+
+@router.post("/import/lamoda", response_model=LamodaImportResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_admin)])
+def import_items_from_lamoda(
+    request: LamodaImportRequest,
+    db: Session = Depends(get_db)
+):
+    """Импорт товаров из Lamoda в базу данных"""
+    try:
+        # Импортируем товары из Lamoda
+        imported_items = service.import_items_from_lamoda(
+            db=db,
+            query=request.query,
+            limit=request.limit,
+            domain=request.domain
+        )
+        
+        # Преобразуем в схемы для ответа
+        items_out = [ItemOut.from_orm(item) for item in imported_items]
+        
+        return LamodaImportResponse(
+            success=True,
+            message=f"Successfully imported {len(imported_items)} items from Lamoda",
+            imported_count=len(imported_items),
+            items=items_out
+        )
+        
+    except Exception as e:
+        # В случае ошибки возвращаем информативное сообщение
+        return LamodaImportResponse(
+            success=False,
+            message=f"Failed to import items from Lamoda: {str(e)}",
+            imported_count=0,
+            items=[]
+        ) 

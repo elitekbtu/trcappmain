@@ -69,6 +69,12 @@ class ItemOut(ItemCreate):
     image_urls: Optional[List[str]] = None
     variants: Optional[List[VariantOut]] = None
     is_favorite: Optional[bool] = None
+    
+    # Новые поля для Lamoda
+    source: Optional[str] = None
+    source_url: Optional[str] = None
+    source_sku: Optional[str] = None
+    old_price: Optional[float] = None
 
     class Config:
         orm_mode = True
@@ -99,4 +105,39 @@ class ItemImageOut(BaseModel):
     position: Optional[int] = None
 
     class Config:
-        orm_mode = True 
+        orm_mode = True
+
+
+# Lamoda Import
+
+
+class LamodaImportRequest(BaseModel):
+    query: str
+    limit: Optional[int] = 20
+    domain: Optional[str] = "kz"
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "query": "nike кроссовки",
+                "limit": 10,
+                "domain": "kz"
+            }
+        }
+
+
+class LamodaImportResponse(BaseModel):
+    success: bool
+    message: str
+    imported_count: int
+    items: List[ItemOut]
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "success": True,
+                "message": "Successfully imported 5 items from Lamoda",
+                "imported_count": 5,
+                "items": []
+            }
+        } 

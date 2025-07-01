@@ -26,6 +26,17 @@ export const Alert = ({
   )
 }
 
+export const AlertTitle = ({ 
+  children,
+  className 
+}: { children: ReactNode, className?: string }) => {
+  return (
+    <h5 className={cn("mb-1 font-medium leading-none tracking-tight", className)}>
+      {children}
+    </h5>
+  )
+}
+
 export const AlertDescription = ({ 
   children,
   className 

@@ -433,4 +433,123 @@ def list_collections(db: Session):
         .order_by(Item.collection)
         .all()
     )
-    return [n[0] for n in names] 
+    return [n[0] for n in names]
+
+
+def create_item_from_lamoda(db: Session, lamoda_product, domain: str = "kz"):
+    """Создание товара в БД из данных парсера Lamoda"""
+    from app.agents.parser_agent import Product
+    from app.db.models.item_image import ItemImage
+    
+    # Проверяем, есть ли уже товар с таким SKU из Lamoda
+    existing_item = db.query(Item).filter(
+        Item.source == "lamoda",
+        Item.source_sku == lamoda_product.sku
+    ).first()
+    
+    if existing_item:
+        # Обновляем существующий товар
+        existing_item.name = lamoda_product.name
+        existing_item.brand = lamoda_product.brand
+        existing_item.price = lamoda_product.price
+        existing_item.old_price = lamoda_product.old_price
+        existing_item.source_url = lamoda_product.url
+        existing_item.image_url = lamoda_product.image_url
+        existing_item.updated_at = func.now()
+        
+        # Обновляем изображения в таблице ItemImage
+        # Удаляем старые изображения для этого товара
+        db.query(ItemImage).filter(ItemImage.item_id == existing_item.id).delete()
+        
+        # Добавляем изображения из списка image_urls
+        image_urls_to_save = lamoda_product.image_urls if hasattr(lamoda_product, 'image_urls') and lamoda_product.image_urls else []
+        
+        # Если в списке нет изображений, но есть основное изображение, добавляем его
+        if not image_urls_to_save and lamoda_product.image_url:
+            image_urls_to_save = [lamoda_product.image_url]
+        
+        # Сохраняем все изображения
+        for position, img_url in enumerate(image_urls_to_save):
+            if img_url:  # Проверяем что URL не пустой
+                item_image = ItemImage(
+                    item_id=existing_item.id,
+                    image_url=img_url,
+                    position=position
+                )
+                db.add(item_image)
+        
+        db.commit()
+        db.refresh(existing_item)
+        return existing_item
+    
+    # Создаем новый товар
+    db_item = Item(
+        name=lamoda_product.name,
+        brand=lamoda_product.brand,
+        price=lamoda_product.price,
+        old_price=lamoda_product.old_price,
+        image_url=lamoda_product.image_url,
+        source="lamoda",
+        source_url=lamoda_product.url,
+        source_sku=lamoda_product.sku,
+        article=lamoda_product.sku,  # Используем SKU как артикул
+        category="clothing",  # Категория по умолчанию
+        collection=f"Lamoda {domain.upper()}",  # Коллекция по домену
+        description=f"Товар {lamoda_product.brand} {lamoda_product.name} от Lamoda"
+    )
+    
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    
+    # Создаем записи изображений в таблице ItemImage
+    image_urls_to_save = lamoda_product.image_urls if hasattr(lamoda_product, 'image_urls') and lamoda_product.image_urls else []
+    
+    # Если в списке нет изображений, но есть основное изображение, добавляем его
+    if not image_urls_to_save and lamoda_product.image_url:
+        image_urls_to_save = [lamoda_product.image_url]
+    
+    # Сохраняем все изображения
+    for position, img_url in enumerate(image_urls_to_save):
+        if img_url:  # Проверяем что URL не пустой
+            item_image = ItemImage(
+                item_id=db_item.id,
+                image_url=img_url,
+                position=position
+            )
+            db.add(item_image)
+    
+    if image_urls_to_save:  # Делаем commit только если есть изображения для сохранения
+        db.commit()
+        db.refresh(db_item)
+    
+    return db_item
+
+
+def import_items_from_lamoda(db: Session, query: str, limit: int = 20, domain: str = "kz"):
+    """Импорт товаров из Lamoda в БД"""
+    import asyncio
+    from app.agents.parser_agent import LamodaParser
+    
+    async def _fetch_and_save():
+        parser = LamodaParser(domain=domain)
+        try:
+            # Получаем товары из Lamoda
+            products = await parser.afetch_search(query, limit=limit)
+            
+            saved_items = []
+            for product in products:
+                try:
+                    # Сохраняем в БД
+                    item = create_item_from_lamoda(db, product, domain)
+                    saved_items.append(item)
+                except Exception as e:
+                    print(f"Error saving product {product.sku}: {e}")
+                    continue
+            
+            return saved_items
+        finally:
+            await parser.close()
+    
+    # Запускаем асинхронную функцию
+    return asyncio.run(_fetch_and_save()) 
