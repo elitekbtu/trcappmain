@@ -91,4 +91,49 @@ export const likeOutfitComment = async (outfitId: number, commentId: number) => 
 
 export const deleteOutfitComment = async (outfitId: number, commentId: number) => {
   await api.delete(`/api/outfits/${outfitId}/comments/${commentId}`)
+}
+
+// ---------- Простой генератор образов ----------
+
+export interface OutfitGenerationFromItemsRequest {
+  selected_item_ids: number[]
+  style: string
+  occasion: string
+  additional_categories?: string[]
+}
+
+export interface RandomOutfitGenerationRequest {
+  style: string
+  occasion: string
+  budget?: number
+  collection?: string
+}
+
+export interface GenerationResult {
+  status: 'completed' | 'failed'
+  result?: {
+    outfit_id: number
+    outfit_name: string
+    description: string
+    total_price: number
+    style_notes: string
+    selected_items: number[]
+    user_items_included?: number[]
+    suggested_additions?: number[]
+    surprise_factor?: string
+  }
+  message?: string
+  error?: string
+}
+
+// Генерация из выбранных товаров
+export const generateOutfitFromItems = async (data: OutfitGenerationFromItemsRequest): Promise<GenerationResult> => {
+  const resp = await api.post<GenerationResult>('/api/outfits/generate-from-items', data)
+  return resp.data
+}
+
+// Случайная генерация
+export const generateRandomOutfit = async (data: RandomOutfitGenerationRequest): Promise<GenerationResult> => {
+  const resp = await api.post<GenerationResult>('/api/outfits/generate-random', data)
+  return resp.data
 } 

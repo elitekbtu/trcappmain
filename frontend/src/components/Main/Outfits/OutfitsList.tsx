@@ -7,6 +7,7 @@ import { Input } from '../../ui/input'
 import { Card, CardContent } from '../../ui/card'
 import { Search, Filter, Sparkles } from 'lucide-react'
 import { type OutfitOut } from '../../../api/schemas'
+import { EmbeddedGenerator } from './EmbeddedGenerator'
 
 interface OutfitPreview {
   id: number
@@ -136,6 +137,7 @@ const OutfitsList = () => {
             <Filter className="h-4 w-4" />
             Фильтры
           </Button>
+
           <Link to="/outfits/new">
             <Button className="flex items-center gap-2 bg-primary hover:bg-primary/90">
               <Sparkles className="h-4 w-4" />
@@ -143,6 +145,18 @@ const OutfitsList = () => {
             </Button>
           </Link>
         </div>
+      </motion.div>
+
+      {/* Embedded Generator */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <EmbeddedGenerator onOutfitGenerated={() => {
+          // Refresh outfits list when new outfit is generated
+          fetchOutfits(search)
+        }} />
       </motion.div>
 
       {/* Grid */}

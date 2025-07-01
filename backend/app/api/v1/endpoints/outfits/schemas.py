@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, root_validator, conint
+from pydantic import BaseModel, root_validator, conint, Field
 from datetime import datetime
 
 
@@ -77,4 +77,78 @@ class OutfitCommentOut(OutfitCommentCreate):
     likes: Optional[int] = 0
 
     class Config:
-        orm_mode = True 
+        orm_mode = True
+
+
+class OutfitGenerationRequest(BaseModel):
+    style: str = Field(..., description="Style of outfit (casual, formal, sporty, etc.)")
+    occasion: str = Field(..., description="Occasion for the outfit (work, party, date, etc.)")
+    budget: Optional[float] = Field(None, description="Maximum budget for the outfit")
+    preferred_colors: Optional[List[str]] = Field(None, description="List of preferred colors")
+    required_categories: Optional[List[str]] = Field(None, description="Required item categories")
+    collection: Optional[str] = Field(None, description="Specific collection to use")
+
+
+class OutfitGenerationResponse(BaseModel):
+    outfit_id: int
+    outfit_name: str
+    description: str
+    total_price: float
+    style_notes: str
+    selected_items: List[int]
+
+
+class OutfitEvaluationResponse(BaseModel):
+    outfit_id: int
+    overall_score: Optional[int] = None
+    color_harmony_score: Optional[int] = None
+    style_consistency_score: Optional[int] = None
+    feedback: Optional[str] = None
+    improvement_suggestions: Optional[str] = None
+    error: Optional[str] = None
+
+
+class OutfitVariationRequest(BaseModel):
+    num_variations: int = Field(3, description="Number of variations to generate")
+
+
+class OutfitVariation(BaseModel):
+    name: str
+    description: str
+    selected_items: List[int]
+    changed_categories: List[str]
+
+
+class OutfitVariationResponse(BaseModel):
+    variations: List[OutfitVariation]
+
+
+class SeasonalOutfitRequest(BaseModel):
+    season: str = Field(..., description="Season (winter, summer, spring, autumn)")
+    style: str = Field(..., description="Style preference")
+    limit: int = Field(5, description="Number of outfits to generate")
+
+
+class SeasonalOutfit(BaseModel):
+    name: str
+    description: str
+    selected_items: List[int]
+    weather_notes: str
+
+
+class SeasonalOutfitResponse(BaseModel):
+    seasonal_outfits: List[SeasonalOutfit]
+
+
+class OutfitGenerationFromItemsRequest(BaseModel):
+    selected_item_ids: List[int] = Field(..., description="List of selected item IDs")
+    style: str = Field(..., description="Style for the outfit")
+    occasion: str = Field(..., description="Occasion for the outfit")
+    additional_categories: Optional[List[str]] = Field(None, description="Additional categories to include")
+
+
+class RandomOutfitGenerationRequest(BaseModel):
+    style: str = Field(..., description="Style for the outfit")
+    occasion: str = Field(..., description="Occasion for the outfit")
+    budget: Optional[float] = Field(None, description="Maximum budget")
+    collection: Optional[str] = Field(None, description="Collection to use") 

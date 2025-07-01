@@ -1,12 +1,16 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import get_current_user, get_current_user_optional
 from app.db.models.user import User
+from app.tasks.hf_generator import generate_outfit_from_selected_items, generate_random_outfit
 from . import service
-from .schemas import OutfitCreate, OutfitUpdate, OutfitOut, OutfitCommentCreate, OutfitCommentOut
+from .schemas import (
+    OutfitCreate, OutfitUpdate, OutfitOut, OutfitCommentCreate, OutfitCommentOut,
+    OutfitGenerationFromItemsRequest, RandomOutfitGenerationRequest
+)
 
 router = APIRouter(prefix="/outfits", tags=["Outfits"])
 
@@ -98,4 +102,54 @@ def delete_outfit_comment(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    return service.delete_outfit_comment(db, user, comment_id) 
+    return service.delete_outfit_comment(db, user, comment_id)
+
+
+# 🔥 Простой и надежный генератор образов
+
+@router.post("/generate-from-items", response_model=dict, status_code=status.HTTP_200_OK)
+def generate_outfit_from_items(
+    request: OutfitGenerationFromItemsRequest,
+    user: User = Depends(get_current_user)
+):
+    """Generate outfit from user-selected items."""
+    # Синхронный вызов для быстрого решения
+    try:
+        result = generate_outfit_from_selected_items(
+            user_id=user.id,
+            selected_item_ids=request.selected_item_ids,
+            style=request.style,
+            occasion=request.occasion,
+            additional_categories=request.additional_categories
+        )
+        
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+        return {"status": "completed", "result": result, "message": "Образ создан успешно!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка генерации: {str(e)}")
+
+
+@router.post("/generate-random", response_model=dict, status_code=status.HTTP_200_OK)
+def generate_random_outfit_endpoint(
+    request: RandomOutfitGenerationRequest,
+    user: User = Depends(get_current_user)
+):
+    """Generate completely random outfit."""
+    # Синхронный вызов для быстрого решения
+    try:
+        result = generate_random_outfit(
+            user_id=user.id,
+            style=request.style,
+            occasion=request.occasion,
+            budget=request.budget,
+            collection=request.collection
+        )
+        
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+        return {"status": "completed", "result": result, "message": "Случайный образ создан!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка генерации: {str(e)}") 

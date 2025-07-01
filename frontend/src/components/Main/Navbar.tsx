@@ -37,6 +37,7 @@ const MainNavbar = () => {
           <Link to="/outfits" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Образы
           </Link>
+
           {isAdmin && (
             <Link to="/admin/users" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               Админ
@@ -68,6 +69,7 @@ const MainNavbar = () => {
                   <Sparkles className="h-4 w-4" /> Образы
                 </Link>
               </DropdownMenuItem>
+
               {isAdmin && (
                 <DropdownMenuItem asChild>
                   <Link to="/admin/users" className="flex items-center gap-2">
